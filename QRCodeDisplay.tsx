@@ -1,13 +1,13 @@
-'use client';
+"use client";
 
-import { useEffect, useRef } from 'react';
-import { QRCodeCanvas } from 'qrcode.react';
-import { Download } from 'lucide-react';
+import { useRef } from "react";
+import { QRCodeCanvas } from "qrcode.react";
+import { Download } from "lucide-react";
 
 interface QRCodeDisplayProps {
   value: string;
   size?: number;
-  level?: 'L' | 'M' | 'Q' | 'H';
+  level?: "L" | "M" | "Q" | "H";
   includeMargin?: boolean;
   downloadFileName?: string;
   showDownloadButton?: boolean;
@@ -17,26 +17,22 @@ interface QRCodeDisplayProps {
 export default function QRCodeDisplay({
   value,
   size = 256,
-  level = 'H',
+  level = "H",
   includeMargin = true,
-  downloadFileName = 'qr-code',
+  downloadFileName = "qr-code",
   showDownloadButton = true,
-  className = '',
+  className = "",
 }: QRCodeDisplayProps) {
   const qrRef = useRef<HTMLDivElement>(null);
 
   const handleDownload = () => {
-    if (!qrRef.current) return;
-
-    const canvas = qrRef.current.querySelector('canvas');
+    const canvas = qrRef.current?.querySelector("canvas");
     if (!canvas) return;
 
-    // Convert canvas to blob and download
     canvas.toBlob((blob) => {
       if (!blob) return;
-
       const url = URL.createObjectURL(blob);
-      const link = document.createElement('a');
+      const link = document.createElement("a");
       link.href = url;
       link.download = `${downloadFileName}.png`;
       document.body.appendChild(link);
@@ -48,7 +44,7 @@ export default function QRCodeDisplay({
 
   return (
     <div className={`flex flex-col items-center gap-4 ${className}`}>
-      {/* QR Code Container */}
+      {/* QR Code */}
       <div
         ref={qrRef}
         className="bg-white p-4 rounded-lg shadow-md border border-gray-200"
@@ -58,7 +54,6 @@ export default function QRCodeDisplay({
           size={size}
           level={level}
           includeMargin={includeMargin}
-          
         />
       </div>
 
