@@ -1,81 +1,33 @@
-import { createServerClient, type CookieOptions } from '@supabase/ssr'
-import { NextResponse, type NextRequest } from 'next/server'
+// middleware.ts
+import { NextResponse, type NextRequest } from "next/server";
+import { createServerClient } from "@supabase/ssr";
 
-export async function middleware(request: NextRequest) {
-  let response = NextResponse.next({
-    request: {
-      headers: request.headers,
-    },
-  })
+export async function middleware(req: NextRequest) {
+  const res = NextResponse.next();
 
+  // Attach Supabase server client to refresh session cookies if needed
   const supabase = createServerClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
     {
       cookies: {
-        get(name: string) {
-          return request.cookies.get(name)?.value
+        get: (name: string) => req.cookies.get(name)?.value,
+        set: (name: string, value: string, options: any) => {
+          res.cookies.set({ name, value, ...options });
         },
-        set(name: string, value: string, options: CookieOptions) {
-          request.cookies.set({
-            name,
-            value,
-            ...options,
-          })
-          response = NextResponse.next({
-            request: {
-              headers: request.headers,
-            },
-          })
-          response.cookies.set({
-            name,
-            value,
-            ...options,
-          })
-        },
-        remove(name: string, options: CookieOptions) {
-          request.cookies.set({
-            name,
-            value: '',
-            ...options,
-          })
-          response = NextResponse.next({
-            request: {
-              headers: request.headers,
-            },
-          })
-          response.cookies.set({
-            name,
-            value: '',
-            ...options,
-          })
+        remove: (name: string, options: any) => {
+          res.cookies.set({ name, value: "", ...options });
         },
       },
     }
-  )
+  );
 
-  const {
-    data: { user },
-  } = await supabase.auth.getUser()
+  // Touch session to ensure cookies are synchronized
+  await supabase.auth.getUser();
 
-  // Protected routes - redirect to signin if not authenticated
-  if (request.nextUrl.pathname.startsWith('/dashboard')) {
-    if (!user) {
-      return NextResponse.redirect(new URL('/auth/signin', request.url))
-    }
-  }
-
-  // Auth routes - redirect to dashboard if already authenticated
-  if (request.nextUrl.pathname.startsWith('/auth/signin') || 
-      request.nextUrl.pathname.startsWith('/auth/signup')) {
-    if (user) {
-      return NextResponse.redirect(new URL('/dashboard', request.url))
-    }
-  }
-
-  return response
+  return res;
 }
 
 export const config = {
-  matcher: ['/dashboard/:path*', '/auth/:path*'],
-}
+  matcher: ["/((?!_next/static|_next/image|favicon.ico).*)"],
+};

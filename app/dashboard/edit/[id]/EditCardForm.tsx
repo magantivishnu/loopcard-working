@@ -5,7 +5,9 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
+
+import { getSupabaseBrowser } from "@/app/providers";
+const supabase = getSupabaseBrowser();
 import Image from 'next/image';
 import { Save, Loader2, Upload, X } from 'lucide-react';
 

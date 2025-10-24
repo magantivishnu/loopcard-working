@@ -1,3 +1,4 @@
+import { getSupabaseBrowser } from "@/app/providers";
 import Link from 'next/link'
 import { ArrowRight, Zap, BarChart3, Palette, QrCode, Globe, Shield } from 'lucide-react'
 

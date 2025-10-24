@@ -1,32 +1,26 @@
-import { createServerClient, type CookieOptions } from '@supabase/ssr'
-import { cookies } from 'next/headers'
+import { cookies } from "next/headers";
+import { createServerClient } from "@supabase/ssr";
 
-export function createClient() {
-  const cookieStore = cookies()
-
+// Use in RSC or route handlers. Next 16: cookies() is async.
+export async function createServerClientStrict() {
+  const cookieStore = await cookies();
   return createServerClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
     {
       cookies: {
-        get(name: string) {
-          return cookieStore.get(name)?.value
+        get: (name: string) => cookieStore.get(name)?.value,
+        set: (name: string, value: string, options: any) => {
+          // In RSC, set may be ignored; in route handlers/server actions it works.
+          cookieStore.set({ name, value, ...options });
         },
-        set(name: string, value: string, options: CookieOptions) {
-          try {
-            cookieStore.set(name, value, options)
-          } catch (error) {
-            // Server component
-          }
-        },
-        remove(name: string, options: CookieOptions) {
-          try {
-            cookieStore.set(name, '', options)
-          } catch (error) {
-            // Server component
-          }
+        remove: (name: string, options: any) => {
+          cookieStore.set({ name, value: "", ...options });
         },
       },
     }
-  )
+  );
 }
+
+// Back-compat alias
+export const createClient = createServerClientStrict;

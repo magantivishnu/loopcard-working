@@ -1,18 +1,20 @@
-import { createClient } from '@/lib/supabase/server'
-import { NextResponse } from 'next/server'
-import { cookies } from 'next/headers'
+// app/auth/callback/route.ts
+import { NextResponse } from "next/server";
+import { createServerClientStrict } from "@/lib/supabase/server";
 
+// Handles the OAuth redirect and persists the session cookies
 export async function GET(request: Request) {
-  const requestUrl = new URL(request.url)
-  const code = requestUrl.searchParams.get('code')
-  const origin = requestUrl.origin
+  const { searchParams, origin } = new URL(request.url);
+  const code = searchParams.get("code");
 
-  if (code) {
-    const supabase = createClient()
-    
-    await supabase.auth.exchangeCodeForSession(code)
+  if (!code) {
+    return NextResponse.redirect(`${origin}/`);
   }
 
-  // Redirect to dashboard after successful authentication
-  return NextResponse.redirect(`${origin}/dashboard`)
+  const supabase = createServerClientStrict();
+
+  // Exchange code for session and set cookies
+  await supabase.auth.exchangeCodeForSession(code);
+
+  return NextResponse.redirect(`${origin}/`);
 }

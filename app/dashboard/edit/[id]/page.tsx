@@ -1,8 +1,8 @@
 // FIXED Edit Page - Server Component
 // Save this as: app/dashboard/edit/[id]/page.tsx
 
-import { createServerComponentClient } from '@supabase/auth-helpers-nextjs';
-import { cookies } from 'next/headers';
+import { createServerClientStrict as createServer } from '@/lib/supabase/server';
+const supabase = createServer();
 import { redirect, notFound } from 'next/navigation';
 import Link from 'next/link';
 import { ChevronLeft } from 'lucide-react';

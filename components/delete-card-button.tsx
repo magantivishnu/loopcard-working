@@ -5,7 +5,6 @@ type Props = { id: string; after?: "to-dashboard" | string };
 export default function DeleteCardButton({ id, after }: Props) {
   const onClick = async () => {
     try {
-      // If you have a server action, replace this fetch with it.
       const res = await fetch("/api/cards/delete", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -24,7 +23,6 @@ export default function DeleteCardButton({ id, after }: Props) {
     <button
       onClick={onClick}
       className="text-sm rounded border px-3 py-1 hover:bg-gray-50"
-      aria-label="Delete card"
     >
       Delete
     </button>
