@@ -12,7 +12,7 @@ export default async function Page() {
   return (
     <div className="px-4 pb-8 pt-4 max-w-3xl mx-auto">
       <h1 className="text-xl font-semibold mb-4">Create new card</h1>
-      {/* @ts-expect-error Server Component passes nothing; wizard runs client-side */}
+      
       <ClientWrapper />
     </div>
   );

@@ -6,7 +6,7 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
+import { createBrowserClient } from "@supabase/ssr";
 import Image from 'next/image';
 import Link from 'next/link';
 import { Edit, Trash2, Eye, QrCode, MoreVertical } from 'lucide-react';
@@ -41,7 +41,10 @@ export default function CardItem({ card, onDelete }: CardItemProps) {
   const handleDelete = async () => {
     try {
       setDeleting(true);
-      const supabase = createClientComponentClient();
+      const supabase = createBrowserClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL!,
+  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+);
 
       const { error } = await supabase
         .from('cards')

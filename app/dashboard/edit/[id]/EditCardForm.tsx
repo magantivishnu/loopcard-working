@@ -2,12 +2,16 @@
 // Save this as: app/dashboard/edit/[id]/EditCardForm.tsx
 
 'use client';
+import { createBrowserClient } from "@supabase/ssr";
 
+const supabase = createBrowserClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL!,
+  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+);
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 
 import { getSupabaseBrowser } from "@/app/providers";
-const supabase = getSupabaseBrowser();
 import Image from 'next/image';
 import { Save, Loader2, Upload, X } from 'lucide-react';
 
@@ -27,7 +31,6 @@ interface Card {
 
 export default function EditCardForm({ card }: { card: Card }) {
   const router = useRouter();
-  const supabase = createClientComponentClient();
   const [saving, setSaving] = useState(false);
   const [uploading, setUploading] = useState(false);
   const [error, setError] = useState<string | null>(null);

@@ -1,11 +1,12 @@
-import { createClient } from '@/lib/supabase/server'
+import { createServerClientStrict as createServer } from "@/lib/supabase/server";
 import { redirect } from 'next/navigation'
 import { User, Bell, Shield, CreditCard, LogOut } from 'lucide-react'
 import { ProfileSettings } from '@/components/settings/profile-settings'
 import { AccountSettings } from '@/components/settings/account-settings'
 
 export default async function SettingsPage() {
-  const supabase = createClient()
+  const supabase = await createServer();
+
   
   const {
     data: { user },

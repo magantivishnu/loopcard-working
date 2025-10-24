@@ -1,15 +1,12 @@
-import { createClient } from '@/lib/supabase/server'
+import { createServerClientStrict as createServer } from "@/lib/supabase/server";
 import { redirect } from 'next/navigation'
 import Link from 'next/link'
 import { Home, CreditCard, Settings, Plus, BarChart3 } from 'lucide-react'
 import { SignOutButton } from '@/components/SignOutButton'
 
-export default async function DashboardLayout({
-  children,
-}: {
-  children: React.ReactNode
-}) {
-  const supabase = createClient()
+export default async function Layout({ children }: { children: React.ReactNode }) {
+  const supabase = await createServer();
+
 
   const {
     data: { user },

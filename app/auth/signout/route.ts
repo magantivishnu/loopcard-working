@@ -1,10 +1,8 @@
-import { createClient } from '@/lib/supabase/server'
-import { NextResponse } from 'next/server'
+import { NextResponse } from "next/server";
+import { createServerClientStrict as createServer } from "@/lib/supabase/server";
 
-export async function POST(request: Request) {
-  const supabase = createClient()
-  
-  await supabase.auth.signOut()
-
-  return NextResponse.redirect(new URL('/', request.url))
+export async function POST() {
+  const supabase = await createServer(); // await required on Next 16
+  await supabase.auth.signOut();
+  return NextResponse.json({ ok: true });
 }

@@ -2,9 +2,10 @@ import { notFound } from "next/navigation";
 import Image from "next/image";
 import { createServerClientStrict as createServer } from "@/lib/supabase/server";
 
+
 type PageProps = { params: { slug: string } };
 
-export default async function Page({ params }: PageProps) {
+export default async function Page({ params }: { params: { slug: string } }) {
   const supabase = await createServer();
 
   const { data, error } = await supabase

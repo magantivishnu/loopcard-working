@@ -58,9 +58,7 @@ export default function QRCodeDisplay({
           size={size}
           level={level}
           includeMargin={includeMargin}
-          imageSettings={{
-            excavate: true,
-          }}
+          
         />
       </div>
 
