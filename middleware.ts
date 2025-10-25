@@ -1,33 +1,35 @@
-// middleware.ts
-import { NextResponse, type NextRequest } from "next/server";
-import { createServerClient } from "@supabase/ssr";
+import { NextResponse } from "next/server";
+import type { NextRequest } from "next/server";
+import { createMiddlewareClient } from "@supabase/auth-helpers-nextjs";
 
 export async function middleware(req: NextRequest) {
+  const url = req.nextUrl;
+
+  // If a Supabase code appears on any path, send it to /auth/callback
+  if (url.searchParams.has("code") && url.pathname !== "/auth/callback") {
+    const dest = new URL("/auth/callback", url);
+    // preserve all query params
+    url.searchParams.forEach((v, k) => dest.searchParams.set(k, v));
+    return NextResponse.redirect(dest);
+  }
+
   const res = NextResponse.next();
+  const supabase = createMiddlewareClient({ req, res });
+  const {
+    data: { session },
+  } = await supabase.auth.getSession();
 
-  // Attach Supabase server client to refresh session cookies if needed
-  const supabase = createServerClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-    {
-      cookies: {
-        get: (name: string) => req.cookies.get(name)?.value,
-        set: (name: string, value: string, options: any) => {
-          res.cookies.set({ name, value, ...options });
-        },
-        remove: (name: string, options: any) => {
-          res.cookies.set({ name, value: "", ...options });
-        },
-      },
-    }
-  );
-
-  // Touch session to ensure cookies are synchronized
-  await supabase.auth.getUser();
+  // Protect dashboard
+  if (url.pathname.startsWith("/dashboard") && !session) {
+    const login = new URL("/auth/signin", url);
+    login.searchParams.set("next", url.pathname);
+    return NextResponse.redirect(login);
+  }
 
   return res;
 }
 
+// Match all routes except Next static assets
 export const config = {
   matcher: ["/((?!_next/static|_next/image|favicon.ico).*)"],
 };

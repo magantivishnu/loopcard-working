@@ -1,7 +1,10 @@
 import { cookies } from "next/headers";
 import { createServerClient } from "@supabase/ssr";
-
+import { createRouteHandlerClient } from "@supabase/auth-helpers-nextjs";
+import type { Database } from "@/types/supabase"; // or remove if not using types
 // Use in RSC or route handlers. Next 16: cookies() is async.
+export const createServerSupabase = () =>
+  createRouteHandlerClient<Database>({ cookies });
 export async function createServerClientStrict() {
   const cookieStore = await cookies();
   return createServerClient(

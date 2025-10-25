@@ -1,8 +1,26 @@
-import { getSupabaseBrowser } from "@/app/providers";
-import Link from 'next/link'
-import { ArrowRight, Zap, BarChart3, Palette, QrCode, Globe, Shield } from 'lucide-react'
+"use client";
+
+import { useEffect } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
+import Link from "next/link";
+import { ArrowRight, Zap, BarChart3, Palette, QrCode, Globe, Shield } from "lucide-react";
 
 export default function LandingPage() {
+  const router = useRouter();
+  const qp = useSearchParams();
+
+  // Catch Supabase magic-link query anywhere on root and forward to /auth/callback
+  useEffect(() => {
+    const code = qp.get("code");
+    if (code) {
+      const next = qp.get("next") ?? "/dashboard";
+      const url = new URL("/auth/callback", window.location.origin);
+      qp.forEach((v, k) => url.searchParams.set(k, v)); // preserve all params
+      if (!url.searchParams.has("next")) url.searchParams.set("next", next);
+      router.replace(url.toString());
+    }
+  }, [qp, router]);
+
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Navigation */}
@@ -15,7 +33,7 @@ export default function LandingPage() {
               </div>
               <span className="text-xl font-bold text-gray-900">LoopCard</span>
             </div>
-            
+
             <div className="hidden md:flex items-center space-x-8">
               <Link href="#features" className="text-gray-600 hover:text-gray-900 transition">
                 Features
@@ -26,8 +44,8 @@ export default function LandingPage() {
               <Link href="/auth/signin" className="text-gray-600 hover:text-gray-900 transition">
                 Sign In
               </Link>
-              <Link 
-                href="/auth/signup" 
+              <Link
+                href="/auth/signup"
                 className="bg-gradient-to-r from-primary-500 to-secondary-500 text-white px-6 py-2 rounded-xl font-semibold hover:shadow-lg transition"
               >
                 Get Started
@@ -51,35 +69,36 @@ export default function LandingPage() {
           <div className="absolute top-0 -left-4 w-72 h-72 bg-purple-300 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob"></div>
           <div className="absolute top-0 -right-4 w-72 h-72 bg-yellow-300 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob animation-delay-2000"></div>
           <div className="absolute -bottom-8 left-20 w-72 h-72 bg-pink-300 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob animation-delay-4000"></div>
-          
+
           <div className="relative max-w-7xl mx-auto">
             <div className="text-center">
               <div className="inline-block mb-6 px-4 py-2 bg-white/20 backdrop-blur-sm rounded-full">
                 <span className="text-white text-sm font-medium">✨ Free Forever Plan Available</span>
               </div>
-              
+
               <h1 className="text-4xl sm:text-5xl md:text-6xl font-extrabold text-white mb-6 leading-tight">
-                Your Digital Business Card<br />
+                Your Digital Business Card
+                <br />
                 <span className="gradient-text bg-gradient-to-r from-yellow-200 to-pink-200 bg-clip-text text-transparent">
                   That Works 24/7
                 </span>
               </h1>
-              
+
               <p className="text-xl text-white/90 mb-10 max-w-2xl mx-auto">
-                Create, share, and track your professional presence with a smart QR-powered business card. 
+                Create, share, and track your professional presence with a smart QR-powered business card.
                 No more lost contacts or outdated information.
               </p>
 
               {/* CTA Buttons */}
               <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
-                <Link 
+                <Link
                   href="/auth/signup"
                   className="w-full sm:w-auto bg-white text-primary-600 px-8 py-4 rounded-xl font-semibold text-lg shadow-xl hover:shadow-2xl transition-all transform hover:scale-105 flex items-center justify-center space-x-2"
                 >
                   <span>Create Free LoopCard</span>
                   <ArrowRight className="w-5 h-5" />
                 </Link>
-                <Link 
+                <Link
                   href="/auth/signin"
                   className="w-full sm:w-auto bg-primary-700 text-white px-8 py-4 rounded-xl font-semibold text-lg border-2 border-white/30 hover:bg-primary-800 transition-all"
                 >
@@ -118,7 +137,7 @@ export default function LandingPage() {
                   </svg>
                 </div>
               </div>
-              
+
               <div className="text-center mt-6">
                 <h3 className="text-3xl font-bold text-gray-900">Your Name</h3>
                 <p className="text-primary-600 font-medium text-lg">Your Designation</p>
@@ -260,7 +279,7 @@ export default function LandingPage() {
                   <span className="text-gray-600">Standard templates</span>
                 </li>
               </ul>
-              <Link 
+              <Link
                 href="/auth/signup"
                 className="block w-full text-center bg-gray-100 text-gray-900 px-6 py-3 rounded-xl font-semibold hover:bg-gray-200 transition"
               >
@@ -316,7 +335,7 @@ export default function LandingPage() {
                   <span>Lead capture forms</span>
                 </li>
               </ul>
-              <Link 
+              <Link
                 href="/auth/signup?plan=pro"
                 className="block w-full text-center bg-white text-primary-600 px-6 py-3 rounded-xl font-semibold hover:shadow-lg transition"
               >
@@ -362,7 +381,7 @@ export default function LandingPage() {
                   <span className="text-gray-600">Dedicated support</span>
                 </li>
               </ul>
-              <Link 
+              <Link
                 href="/contact"
                 className="block w-full text-center bg-gray-900 text-white px-6 py-3 rounded-xl font-semibold hover:bg-gray-800 transition"
               >
@@ -376,13 +395,11 @@ export default function LandingPage() {
       {/* CTA Section */}
       <section className="py-20 px-4 gradient-bg">
         <div className="max-w-4xl mx-auto text-center">
-          <h2 className="text-4xl font-bold text-white mb-6">
-            Ready to transform your networking?
-          </h2>
+          <h2 className="text-4xl font-bold text-white mb-6">Ready to transform your networking?</h2>
           <p className="text-xl text-white/90 mb-10">
             Join thousands of professionals who've already made the switch to digital business cards
           </p>
-          <Link 
+          <Link
             href="/auth/signup"
             className="inline-flex items-center space-x-2 bg-white text-primary-600 px-10 py-4 rounded-xl font-semibold text-lg shadow-xl hover:shadow-2xl transition-all transform hover:scale-105"
           >
@@ -401,44 +418,78 @@ export default function LandingPage() {
                 <div className="w-8 h-8 bg-gradient-to-br from-primary-500 to-secondary-500 rounded-lg"></div>
                 <span className="text-xl font-bold">LoopCard</span>
               </div>
-              <p className="text-gray-400">
-                Digital business cards for the modern professional
-              </p>
+              <p className="text-gray-400">Digital business cards for the modern professional</p>
             </div>
-            
+
             <div>
               <h4 className="font-semibold mb-4">Product</h4>
               <ul className="space-y-2 text-gray-400">
-                <li><Link href="#features" className="hover:text-white transition">Features</Link></li>
-                <li><Link href="#pricing" className="hover:text-white transition">Pricing</Link></li>
-                <li><Link href="/templates" className="hover:text-white transition">Templates</Link></li>
+                <li>
+                  <Link href="#features" className="hover:text-white transition">
+                    Features
+                  </Link>
+                </li>
+                <li>
+                  <Link href="#pricing" className="hover:text-white transition">
+                    Pricing
+                  </Link>
+                </li>
+                <li>
+                  <Link href="/templates" className="hover:text-white transition">
+                    Templates
+                  </Link>
+                </li>
               </ul>
             </div>
-            
+
             <div>
               <h4 className="font-semibold mb-4">Company</h4>
               <ul className="space-y-2 text-gray-400">
-                <li><Link href="/about" className="hover:text-white transition">About</Link></li>
-                <li><Link href="/blog" className="hover:text-white transition">Blog</Link></li>
-                <li><Link href="/contact" className="hover:text-white transition">Contact</Link></li>
+                <li>
+                  <Link href="/about" className="hover:text-white transition">
+                    About
+                  </Link>
+                </li>
+                <li>
+                  <Link href="/blog" className="hover:text-white transition">
+                    Blog
+                  </Link>
+                </li>
+                <li>
+                  <Link href="/contact" className="hover:text-white transition">
+                    Contact
+                  </Link>
+                </li>
               </ul>
             </div>
-            
+
             <div>
               <h4 className="font-semibold mb-4">Legal</h4>
               <ul className="space-y-2 text-gray-400">
-                <li><Link href="/privacy" className="hover:text-white transition">Privacy</Link></li>
-                <li><Link href="/terms" className="hover:text-white transition">Terms</Link></li>
-                <li><Link href="/security" className="hover:text-white transition">Security</Link></li>
+                <li>
+                  <Link href="/privacy" className="hover:text-white transition">
+                    Privacy
+                  </Link>
+                </li>
+                <li>
+                  <Link href="/terms" className="hover:text-white transition">
+                    Terms
+                  </Link>
+                </li>
+                <li>
+                  <Link href="/security" className="hover:text-white transition">
+                    Security
+                  </Link>
+                </li>
               </ul>
             </div>
           </div>
-          
+
           <div className="border-t border-gray-800 pt-8 text-center text-gray-400">
             <p>&copy; 2024 LoopCard. All rights reserved.</p>
           </div>
         </div>
       </footer>
     </div>
-  )
+  );
 }

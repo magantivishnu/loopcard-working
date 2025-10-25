@@ -1,13 +1,25 @@
 import { NextResponse } from "next/server";
-import { createServerClientStrict as createServer } from "@/lib/supabase/server";
+import { createClient } from "@/lib/supabase/server";
 
 export async function GET(request: Request) {
-  const { searchParams, origin } = new URL(request.url);
-  const code = searchParams.get("code");
-  if (!code) return NextResponse.redirect(`${origin}/`);
+  const url = new URL(request.url);
+  const code = url.searchParams.get("code");
+  const next = url.searchParams.get("next") ?? "/dashboard";
 
-  const supabase = await createServer(); // await required
-  await supabase.auth.exchangeCodeForSession(code);
+  if (!code) {
+    return NextResponse.redirect(
+      new URL("/auth/signin?err=missing_code", url.origin)
+    );
+  }
 
-  return NextResponse.redirect(`${origin}/`);
+  const supabase = createClient();
+  const { error } = await supabase.auth.exchangeCodeForSession(code);
+
+  if (error) {
+    return NextResponse.redirect(
+      new URL(`/auth/signin?err=${encodeURIComponent(error.message)}`, url.origin)
+    );
+  }
+
+  return NextResponse.redirect(new URL(next, url.origin));
 }
