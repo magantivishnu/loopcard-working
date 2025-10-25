@@ -1,10 +1,12 @@
 // app/providers.tsx
 "use client";
 import { useState } from "react";
-import { createClient as createBrowserClient } from "@/lib/supabase/client";
+import { supabase } from "@/lib/supabase/client";
 
 export default function Providers({ children }: { children: React.ReactNode }) {
-  useState(() => createBrowserClient());
+  useState(() => supabase);
   return <>{children}</>;
 }
-export const getSupabaseBrowser = createBrowserClient;
+
+// Export a function to get the Supabase client
+export const getSupabaseBrowser = () => supabase;

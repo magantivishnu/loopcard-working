@@ -1,82 +1,101 @@
-"use client";
+'use client';
 
-import { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
-import { supabase } from "@/lib/supabase/client";
+import { useState } from 'react';
+import { createBrowserClient } from '@supabase/ssr';
+import { useRouter } from 'next/navigation';
 
 export default function SignInPage() {
+  const [email, setEmail] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [message, setMessage] = useState('');
   const router = useRouter();
-  const [email, setEmail] = useState("");
-  const [status, setStatus] = useState<"idle" | "sending" | "sent" | "error">(
-    "idle"
-  );
-  const [err, setErr] = useState("");
+  const supabase = createBrowserClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL!,
+  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+);
 
-  // If already logged in, redirect to dashboard
-  useEffect(() => {
-    const { data: listener } = supabase.auth.onAuthStateChange(
-      async (_event, session) => {
-        if (session) router.replace("/dashboard");
-      }
-    );
-    return () => listener.subscription.unsubscribe();
-  }, [router]);
-
-  const sendMagic = async (e: React.FormEvent) => {
+  const handleSignIn = async (e: React.FormEvent) => {
     e.preventDefault();
-    setStatus("sending");
-    setErr("");
+    setLoading(true);
+    setMessage('');
 
-    const redirectTo =
-      window.location.origin + "/auth/callback?next=/dashboard";
+    try {
+      const { error } = await supabase.auth.signInWithOtp({
+        email,
+        options: {
+          // This is the critical part - redirect to the callback route
+          emailRedirectTo: `${window.location.origin}/auth/callback?next=/dashboard`,
+        },
+      });
 
-    const { error } = await supabase.auth.signInWithOtp({
-      email,
-      options: { emailRedirectTo: redirectTo },
-    });
-
-    if (error) {
-      setErr(error.message);
-      setStatus("error");
-      return;
+      if (error) {
+        setMessage(`Error: ${error.message}`);
+      } else {
+        setMessage('Check your email for the magic link!');
+      }
+    } catch (error) {
+      setMessage('An unexpected error occurred');
+    } finally {
+      setLoading(false);
     }
-    setStatus("sent");
   };
 
   return (
-    <main className="flex flex-col items-center justify-center min-h-screen p-6">
-      <div className="w-full max-w-sm border rounded-xl p-6 shadow">
-        <h1 className="text-xl font-semibold mb-4 text-center">Sign in</h1>
+    <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
+      <div className="max-w-md w-full space-y-8">
+        <div>
+          <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
+            Sign in to LoopCard
+          </h2>
+          <p className="mt-2 text-center text-sm text-gray-600">
+            Enter your email to receive a magic link
+          </p>
+        </div>
+        
+        <form className="mt-8 space-y-6" onSubmit={handleSignIn}>
+          <div className="rounded-md shadow-sm -space-y-px">
+            <div>
+              <label htmlFor="email-address" className="sr-only">
+                Email address
+              </label>
+              <input
+                id="email-address"
+                name="email"
+                type="email"
+                autoComplete="email"
+                required
+                className="appearance-none rounded-lg relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
+                placeholder="Email address"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                disabled={loading}
+              />
+            </div>
+          </div>
 
-        <form onSubmit={sendMagic} className="space-y-4">
-          <input
-            type="email"
-            required
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            placeholder="you@example.com"
-            className="w-full border rounded p-2"
-          />
-          <button
-            type="submit"
-            disabled={status === "sending"}
-            className="w-full border rounded p-2 bg-black text-white"
-          >
-            {status === "sending" ? "Sending..." : "Send Magic Link"}
-          </button>
+          {message && (
+            <div
+              className={`rounded-md p-4 ${
+                message.includes('Error')
+                  ? 'bg-red-50 text-red-800'
+                  : 'bg-green-50 text-green-800'
+              }`}
+            >
+              <p className="text-sm">{message}</p>
+            </div>
+          )}
+
+          <div>
+            <button
+              type="submit"
+              disabled={loading}
+              className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:bg-gray-400 disabled:cursor-not-allowed"
+            >
+              {loading ? 'Sending...' : 'Send Magic Link'}
+            </button>
+          </div>
         </form>
-
-        {status === "sent" && (
-          <p className="text-sm text-green-600 mt-4 text-center">
-            Check your email for the login link.
-          </p>
-        )}
-        {err && (
-          <p className="text-sm text-red-600 mt-4 text-center">
-            Error: {err}
-          </p>
-        )}
       </div>
-    </main>
+    </div>
   );
 }
