@@ -1,6 +1,8 @@
 import { NextResponse } from "next/server";
-import { createServerClientStrict as createServer } from "@/lib/supabase/server";
+import { createClient } from "@/lib/supabase/server";
 
+export async function GET() {
+  const supabase = createClient();
 export async function POST(request: Request) {
   const supabase = await createServer(); // await is required
   const body = await request.json();

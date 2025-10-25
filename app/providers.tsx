@@ -1,10 +1,10 @@
 // app/providers.tsx
 "use client";
 import { useState } from "react";
-import { supabase } from "@/lib/supabase/client";
+import { createClient } from "@/lib/supabase/client";
 
 export default function Providers({ children }: { children: React.ReactNode }) {
-  useState(() => supabase);
+  useState(() => createClient());
   return <>{children}</>;
 }
 
