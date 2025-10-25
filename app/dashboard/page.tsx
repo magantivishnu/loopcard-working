@@ -4,18 +4,22 @@
 import { useEffect, useState } from "react";
 import { getSupabaseBrowser } from "@/app/providers";
 import type { User } from "@supabase/supabase-js";
+import type { UserResponse } from "@supabase/supabase-js";
+import type { AuthChangeEvent, Session } from "@supabase/supabase-js";
 
 export default function Page() {
   const supabase = getSupabaseBrowser();
   const [user, setUser] = useState<User | null>(null);
 
   useEffect(() => {
-    supabase.auth.getUser().then(({ data }) => setUser(data.user ?? null));
+    supabase.auth.getUser().then((result: UserResponse) => setUser(result.data.user ?? null));
     const {
-      data: { subscription },
-    } = supabase.auth.onAuthStateChange(async (_event, session) => {
-      setUser(session?.user ?? null);
-    });
+  data: { subscription },
+} = supabase.auth.onAuthStateChange(
+  (_event: AuthChangeEvent, session: Session | null) => {
+    setUser(session?.user ?? null);
+  }
+);
     return () => subscription.unsubscribe();
   }, [supabase]);
 

@@ -1,13 +1,11 @@
-import { createServerClient, type CookieOptions } from "@supabase/ssr";
+// lib/supabase/server.ts
 import { cookies } from "next/headers";
-import { cache } from "react";
-import { Database } from "@/lib/database.types"; // Assuming you have a types file
+import { createServerClient, type CookieOptions } from "@supabase/ssr";
 
-// Use React's 'cache' to ensure the client is only created once per request
-export const createClient = cache(() => {
-  const cookieStore = cookies();
+export async function createServerClientStrict() {
+  const cookieStore = await cookies();
 
-  return createServerClient<Database>(
+  const supabase = createServerClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
     {
@@ -18,13 +16,20 @@ export const createClient = cache(() => {
         set(name: string, value: string, options: CookieOptions) {
           try {
             cookieStore.set({ name, value, ...options });
-          } catch (error) {
-            // This set method is used by Supabase to refresh the session.
-            // It will throw when called from a Server Component.
-            // This is safe to ignore if you are refreshing the session in middleware.
-          }
+          } catch {}
+        },
+        remove(name: string, options: CookieOptions) {
+          try {
+            cookieStore.set({ name, value: "", ...options });
+          } catch {}
         },
       },
     }
   );
-});
+
+  return supabase;
+}
+
+export async function createServer() {
+  return createServerClientStrict();
+}

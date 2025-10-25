@@ -1,12 +1,24 @@
-// app/providers.tsx
 "use client";
-import { useState } from "react";
-import { createClient } from "@/lib/supabase/client";
 
-export default function Providers({ children }: { children: React.ReactNode }) {
-  useState(() => createClient());
-  return <>{children}</>;
+import { ReactNode } from "react";
+import { createBrowserClient } from "@supabase/ssr";
+import type { SupabaseClient } from "@supabase/supabase-js";
+
+let supabase: SupabaseClient | null = null;
+
+function getClient() {
+  if (!supabase) {
+    supabase = createBrowserClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+    );
+  }
+  return supabase;
 }
 
-// Export a function to get the Supabase client
-export const getSupabaseBrowser = () => supabase;
+export const getSupabaseBrowser = getClient;
+
+export default function Providers({ children }: { children: ReactNode }) {
+  // Put any future Context providers here. For now just render children.
+  return <>{children}</>;
+}
