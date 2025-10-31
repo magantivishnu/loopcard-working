@@ -14,6 +14,7 @@ import SetupWizard from "../screens/SetupWizard";
 import QRDisplay from "../screens/QRDisplay";
 import TabNavigator from "./TabNavigator";
 import CardPreviewScreen from "../screens/CardPreviewScreen"; // ✅ WebView preview
+import CardEditor from "../screens/CardEditor";
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
 
@@ -22,6 +23,7 @@ function AuthStack() {
     <Stack.Navigator screenOptions={{ headerShown: false }} initialRouteName="Welcome">
       <Stack.Screen name="Welcome" component={WelcomeScreen} />
       <Stack.Screen name="Signup" component={SignupScreen} />
+      <Stack.Screen name="EditCard" component={CardEditor} />
       <Stack.Screen name="OTPVerification" component={OTPVerificationScreen} />
     </Stack.Navigator>
   );
@@ -38,7 +40,7 @@ function AppRootStack() {
         name="CardPreview"
         component={CardPreviewScreen}
         options={{
-          headerShown: true,
+          headerShown: false,
           title: "Preview",
         }}
       />
