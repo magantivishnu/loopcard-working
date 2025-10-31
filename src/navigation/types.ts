@@ -1,11 +1,9 @@
 export type RootStackParamList = {
-  // Auth
   Welcome: undefined;
   Signup: undefined;
-  OTPVerification: { email: string };
-
-  // App root (stack)
-  MainTabs: undefined;   // ← Tab navigator container
+  OTPVerification: undefined;
+  MainTabs: undefined;
   QRDisplay: undefined;
   SetupWizard: undefined;
+  CardPreview: { slug: string }; // ✅ add this line
 };
